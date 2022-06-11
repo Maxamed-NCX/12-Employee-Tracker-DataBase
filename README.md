@@ -95,7 +95,7 @@ Run the following command at the root of your project and answer the prompted qu
 No testing is currently set up
 
 ## Contributing
-:octocat: [Joseph DeWoody](https://github.com/mcnoor)
+:octocat: [MCX](https://github.com/mcnoor)
 
 ## Questions
 ✉️ Contact me with any questions: [email](mailto:mcnoor@gmail.com) , [GitHub]((https://github.com/Mcnoor/Challenge-Module12-BC/))<br />
