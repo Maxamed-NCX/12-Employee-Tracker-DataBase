@@ -29,7 +29,7 @@
   
 ![ Employee Tracker](./assets/empfdsfloyee-tracker.gif)
   
-🎥 The full movie file showing functionality of the application can be found [here](https://watch.screencastify.com/v/LYjd8Qfcxtl2E2L51UlO) 
+🎥 The full movie file showing functionality of the application can be found [here](https://watch.screencastify.com/v/VuQGsPWQHxKNY2rOdXdk)
   
 ## User Story
   
