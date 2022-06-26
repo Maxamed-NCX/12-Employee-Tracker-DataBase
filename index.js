@@ -8,20 +8,32 @@ const prompts = readline.createInterface({
   output: process.stdout,
 });
 
+//VIEW OPTIONS
+// View Departments
 function viewDepartments() {
   db.promise()
     .query("SELECT * FROM departments")
     .then(([rows, fields]) => {
-      console.log(rows);
+      console.table(rows);
       init();
     });
 }
 
-function viewEmployees() {
+function viewByManager() {
   db.promise()
-    .query("SELECT * FROM employees")
+    .query("SELECT * FROM employees WHERE manager_id = 47")
     .then(([rows, fields]) => {
-      console.log(rows);
+      console.table(rows);
+      init();
+    });
+}
+
+function viewByDepartments() {
+  db.promise()
+    // .query("SELECT * FROM employees WHERE role_id = 18")
+    .query("SELECT * FROM employees WHERE role_id = 18 ")
+    .then(([rows, fields]) => {
+      console.table(rows);
       init();
     });
 }
@@ -30,12 +42,54 @@ function viewRoles() {
   db.promise()
     .query("SELECT * FROM roles")
     .then(([rows, fields]) => {
-      console.log(rows);
+      console.table(rows);
       init();
     });
 }
 
-function addEmployee(firstName, lastName, roleId, managerId) {
+// View Employees
+function viewEmployees() {
+  db.promise()
+    .query("SELECT * FROM employees")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      init();
+    });
+}
+
+// View Employees
+function viewBudget() {
+  db.promise()
+    .query(
+      "SELECT first_name, last_name,  title, salary  FROM roles INNER JOIN employees WHERE roles.id=employees.role_id "
+    )
+    .then(([rows, fields]) => {
+      console.table(rows);
+      init();
+    });
+}
+
+function addDepartment(name) {
+  const department = {
+    name: name,
+  };
+  db.promise()
+    .query(`INSERT INTO departments SET ?`, department)
+    .then(console.log("Department is added to the database."));
+}
+// Add Roles
+function addRole(title, salary, department) {
+  const role = {
+    title: title,
+    salary: salary,
+    department_id: department,
+  };
+  db.promise()
+    .query(`INSERT INTO roles SET ?`, role)
+    .then(console.log("Role is added to the database."));
+}
+// Add Employees
+function addEmployee(firstName, lastName, roleId, managerId, department) {
   const employee = {
     first_name: firstName,
     last_name: lastName,
@@ -48,26 +102,99 @@ function addEmployee(firstName, lastName, roleId, managerId) {
     .then(console.log("Employee is added to the database."));
 }
 
-function addRole(title, salary, department) {
-  const role = {
-    title: title,
-    salary: salary,
-    department_id: department,
-  };
+//DELETE OPTIONS
+// Delete Employees
+function deleteEmployee(employeeId) {
   db.promise()
-    .query(`INSERT INTO roles SET ?`, role)
-    .then(console.log("Role is added to the database."));
+    .query(`DELETE FROM employees WHERE id = ${employeeId}`)
+    .then(console.log("Employee is deleted from the database."));
+}
+// Delete Roles
+function deleteRole(roleId) {
+  db.promise()
+    .query(`DELETE FROM roles WHERE id = ${roleId}`)
+    .then(console.log("Role is deleted from the database."));
 }
 
-function addDepartment(name) {
-  const department = {
-    name: name,
-  };
+// Delete Departments
+function deleteDepartment(department) {
   db.promise()
-    .query(`INSERT INTO departments SET ?`, department)
-    .then(console.log("Department is added to the database."));
+    .query(`DELETE FROM departments WHERE id = ${department}`)
+    .then(console.log("Department is deleted from the database."));
 }
 
+//ADD PROMPTS
+// Prompt Add Deparment
+function promptAddDepartment() {
+  prompt([
+    {
+      type: "input",
+      name: "name",
+      message: "Enter your department name?",
+      validate: (nameInput) => {
+        if (nameInput) {
+          return true;
+        } else {
+          console.log("Please enter your Department name!");
+          return false;
+        }
+      },
+    },
+  ]).then((departmentInfo) => {
+    addDepartment(departmentInfo.name);
+    init();
+  });
+}
+
+// Prompt Add Role
+function promptAddRole() {
+  prompt([
+    {
+      type: "input",
+      name: "title",
+      message: "Enter your Job Title?",
+      validate: (nameInput) => {
+        if (nameInput) {
+          return true;
+        } else {
+          console.log("Please enter your title!");
+          return false;
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "Enter your salary?",
+      validate: (nameInput) => {
+        if (nameInput) {
+          return true;
+        } else {
+          console.log("Please enter your salary!");
+          return false;
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "department",
+      message: "Enter your department ID",
+      validate: (nameInput) => {
+        if (nameInput) {
+          return true;
+        } else {
+          console.log("Enter your department ID!");
+          return false;
+        }
+      },
+    },
+  ]).then((roleInfo) => {
+    addRole(roleInfo.title, roleInfo.salary, roleInfo.department);
+    init();
+  });
+}
+
+// Prompt Add Employees
 function promptAddEmployee() {
   db.promise()
     .query("SELECT * from roles")
@@ -137,15 +264,91 @@ function promptAddEmployee() {
       });
     });
 }
-function addDepartment(name) {
-  const department = {
-    name: name,
-  };
+
+//DELETE Prompts
+// Prompt Delete Employees
+function promptDeleteEmployee() {
   db.promise()
-    .query(`INSERT INTO departments SET ?`, department)
-    .then(console.log("Department is added to the database."));
+    .query("SELECT * from employees")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      prompt([
+        {
+          type: "input",
+          name: "employeeId",
+          message: "Enter employee's ID?",
+          validate: (nameInput) => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log("Please enter an Employee's ID!");
+              return false;
+            }
+          },
+        },
+      ]).then((employeeInfo) => {
+        deleteEmployee(employeeInfo.employeeId);
+        init();
+      });
+    });
 }
 
+//Prompt Delete Role
+function promptDeleteRole() {
+  db.promise()
+    .query("SELECT * from roles")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      prompt([
+        {
+          type: "input",
+          name: "roleId",
+          message: "Enter Role ID?",
+          validate: (nameInput) => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log("Please enter an Role ID!");
+              return false;
+            }
+          },
+        },
+      ]).then((roleInfo) => {
+        deleteRole(roleInfo.roleId);
+        init();
+      });
+    });
+}
+
+// Prompt Delete Department
+function promptDeleteDepartment() {
+  db.promise()
+    .query("SELECT * from departments")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      prompt([
+        {
+          type: "input",
+          name: "department",
+          message: "Enter Department ID?",
+          validate: (idInput) => {
+            if (idInput) {
+              return true;
+            } else {
+              console.log("Please enter an Department ID!");
+              return false;
+            }
+          },
+        },
+      ]).then((departmentInfo) => {
+        deleteDepartment(departmentInfo.department);
+        init();
+      });
+    });
+}
+
+// UPDATE OPTIONS
+//Update Employee Role
 function updateEmployeeRole() {
   //get all the employee list
   db.query("SELECT * FROM employees", (err, emplRes) => {
@@ -205,71 +408,63 @@ function updateEmployeeRole() {
   });
 }
 
-function promptAddRole() {
-  prompt([
-    {
-      type: "input",
-      name: "title",
-      message: "Enter your Job Title?",
-      validate: (nameInput) => {
-        if (nameInput) {
-          return true;
-        } else {
-          console.log("Please enter your title!");
-          return false;
-        }
-      },
-    },
-    {
-      type: "input",
-      name: "salary",
-      message: "Enter your salary?",
-      validate: (nameInput) => {
-        if (nameInput) {
-          return true;
-        } else {
-          console.log("Please enter your salary!");
-          return false;
-        }
-      },
-    },
-    {
-      type: "input",
-      name: "department",
-      message: "Enter your department ID",
-      validate: (nameInput) => {
-        if (nameInput) {
-          return true;
-        } else {
-          console.log("Enter your department ID!");
-          return false;
-        }
-      },
-    },
-  ]).then((roleInfo) => {
-    addRole(roleInfo.title, roleInfo.salary, roleInfo.departmentId);
-    init();
-  });
-}
+//Update Manager Role
+function updateManagerRole() {
+  //get all the employee list
+  db.query("SELECT * FROM employees WHERE id = 47", (err, emplRes) => {
+    if (err) throw err;
+    const employeeChoice = [];
+    emplRes.forEach(({ first_name, last_name, id }) => {
+      employeeChoice.push({
+        name: first_name + " " + last_name,
+        value: id,
+      });
+    });
 
-function promptAddDepartment() {
-  prompt([
-    {
-      type: "input",
-      name: "name",
-      message: "Enter your department name?",
-      validate: (nameInput) => {
-        if (nameInput) {
-          return true;
-        } else {
-          console.log("Please enter your Department name!");
-          return false;
-        }
-      },
-    },
-  ]).then((departmentInfo) => {
-    addDepartment(departmentInfo.name);
-    init();
+    //get all the role list to make choice of employee's role
+    db.query("SELECT * FROM roles", (err, rolRes) => {
+      if (err) throw err;
+      const roleChoice = [];
+      rolRes.forEach(({ title, id }) => {
+        roleChoice.push({
+          name: title,
+          value: id,
+        });
+      });
+
+      let questions = [
+        {
+          type: "list",
+          name: "id",
+          choices: employeeChoice,
+          message: "whose role do you want to update?",
+        },
+        {
+          type: "list",
+          name: "role_id",
+          choices: roleChoice,
+          message: "what is the employee's new role?",
+        },
+      ];
+
+      prompt(questions)
+        .then((response) => {
+          const query = `UPDATE employees SET ? WHERE ?? = ?;`;
+          db.query(
+            query,
+            [{ role_id: response.role_id }, "id", response.id],
+            (err, res) => {
+              if (err) throw err;
+
+              console.log("successfully updated employee's role!");
+              init();
+            }
+          );
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    });
   });
 }
 
@@ -280,30 +475,51 @@ function init() {
       name: "task",
       message: "What would you like to do?",
       choices: [
-        "View all departments",
-        "View all roles",
-        "View all employees",
-        "Add a department",
-        "Add a role",
-        "Add an employee",
-        "Update an employee role",
+        "View all Departments",
+        "View all Roles",
+        "View all Employees",
+        "Add a Department",
+        "Add a Role",
+        "Add an Employee",
+        "Delete an Employee",
+        "Delete an Role",
+        "Delete an Department",
+        "Update an Employee role",
+        "Update an Manager role",
+        "View by Departments",
+        "View by Manager",
+        "View by viewBudget",
       ],
     },
   ]).then(({ task }) => {
-    if (task == "View all departments") {
+    if (task == "View all Departments") {
       viewDepartments();
-    } else if (task == "View all roles") {
+    } else if (task == "View by Departments") {
+      viewByDepartments();
+    } else if (task == "View all Roles") {
       viewRoles();
-    } else if (task == "View all employees") {
+    } else if (task == "View by Manager") {
+      viewByManager();
+    } else if (task == "View all Employees") {
       viewEmployees();
-    } else if (task == "Add a role") {
-      promptAddRole();
-    } else if (task == "Add a department") {
+    } else if (task == "Add a Department") {
       promptAddDepartment();
-    } else if (task == "Add an employee") {
+    } else if (task == "Add a Role") {
+      promptAddRole();
+    } else if (task == "Add an Employee") {
       promptAddEmployee();
-    } else {
+    } else if (task == "Delete an Employee") {
+      promptDeleteEmployee();
+    } else if (task == "Delete an Role") {
+      promptDeleteRole();
+    } else if (task == "Delete an Department") {
+      promptDeleteDepartment();
+    } else if (task == "Update an Employee role") {
       updateEmployeeRole();
+    } else if (task == "Update an Manager role") {
+      updateManagerRole();
+    } else {
+      viewBudget();
     }
   });
 }
