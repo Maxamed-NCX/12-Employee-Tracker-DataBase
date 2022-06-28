@@ -19,7 +19,27 @@ function viewDepartments() {
     });
 }
 
-//Update Manager Role
+// View Employees
+function viewEmployees() {
+  db.promise()
+    .query("SELECT * FROM employees")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      init();
+    });
+}
+
+// View Roles
+function viewRoles() {
+  db.promise()
+    .query("SELECT * FROM roles")
+    .then(([rows, fields]) => {
+      console.table(rows);
+      init();
+    });
+}
+
+//View by Manager
 function viewByManager() {
   //get all the employee list
   db.query("SELECT * FROM employees", (err, emplRes) => {
@@ -55,6 +75,7 @@ function viewByManager() {
   });
 }
 
+// View by Departments
 function viewByDepartments() {
   //get all the employee list
   db.query("SELECT * FROM departments", (err, deptRes) => {
@@ -91,28 +112,8 @@ function viewByDepartments() {
   });
 }
 
-// View Employees
-// function viewBudget() {
-//   db.promise()
-//     .query(
-//       "SELECT first_name, last_name,  title, salary  FROM roles INNER JOIN employees WHERE roles.id=employees.role_id "
-//     )
-//     .then(([rows, fields]) => {
-//       console.table(rows);
-//       init();
-//     });
-// }
-
-function viewRoles() {
-  db.promise()
-    .query("SELECT * FROM roles")
-    .then(([rows, fields]) => {
-      console.table(rows);
-      init();
-    });
-}
-
-function viewBudget() {
+// View Budget by dept
+function viewDeptBudget() {
   //get all the employee list
   db.query("SELECT * FROM departments", (err, deptRes) => {
     if (err) throw err;
@@ -151,16 +152,7 @@ function viewBudget() {
   });
 }
 
-// View Employees
-function viewEmployees() {
-  db.promise()
-    .query("SELECT * FROM employees")
-    .then(([rows, fields]) => {
-      console.table(rows);
-      init();
-    });
-}
-
+// View Add Department
 function addDepartment(name) {
   const department = {
     name: name,
@@ -500,6 +492,7 @@ function updateEmployeeRole() {
   });
 }
 
+// Update Manager Role
 function updateManagerRole() {
   //get all the employee list
   db.query("SELECT * FROM employees", (err, emplRes) => {
@@ -559,6 +552,7 @@ function updateManagerRole() {
   });
 }
 
+// Init Function
 function init() {
   prompt([
     {
@@ -579,7 +573,7 @@ function init() {
         "Update an Manager role",
         "View by Departments",
         "View by Manager",
-        "View by viewBudget",
+        "View by viewDeptBudget",
       ],
     },
   ]).then(({ task }) => {
@@ -610,7 +604,7 @@ function init() {
     } else if (task == "Update an Manager role") {
       updateManagerRole();
     } else {
-      viewBudget();
+      viewDeptBudget();
     }
   });
 }
