@@ -19,24 +19,89 @@ function viewDepartments() {
     });
 }
 
+//Update Manager Role
 function viewByManager() {
-  db.promise()
-    .query("SELECT * FROM employees WHERE manager_id = 47")
-    .then(([rows, fields]) => {
-      console.table(rows);
-      init();
+  //get all the employee list
+  db.query("SELECT * FROM employees", (err, emplRes) => {
+    if (err) throw err;
+    const employeeChoice = [];
+    emplRes.forEach(({ first_name, last_name, id }) => {
+      employeeChoice.push({
+        name: first_name + " " + last_name,
+        value: id,
+      });
     });
+    let questions = [
+      {
+        type: "list",
+        name: "id",
+        choices: employeeChoice,
+        message: "which manager would you like to view?",
+      },
+    ];
+
+    prompt(questions)
+      .then((response) => {
+        const query = `select * from employees WHERE manager_id = ?;`;
+        db.query(query, response.id, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          init();
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
 }
 
 function viewByDepartments() {
-  db.promise()
-    // .query("SELECT * FROM employees WHERE role_id = 18")
-    .query("SELECT * FROM employees WHERE role_id = 18 ")
-    .then(([rows, fields]) => {
-      console.table(rows);
-      init();
+  //get all the employee list
+  db.query("SELECT * FROM departments", (err, deptRes) => {
+    if (err) throw err;
+    const deptChoice = [];
+    deptRes.forEach(({ id, name }) => {
+      deptChoice.push({
+        name: name,
+        value: id,
+      });
     });
+    let questions = [
+      {
+        type: "list",
+        name: "id",
+        choices: deptChoice,
+        message: "which department would you like to view?",
+      },
+    ];
+
+    prompt(questions)
+      .then((response) => {
+        const query = `select * from employees WHERE role_id = ?;`;
+        db.query(query, response.id, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          ``;
+          init();
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
 }
+
+// View Employees
+// function viewBudget() {
+//   db.promise()
+//     .query(
+//       "SELECT first_name, last_name,  title, salary  FROM roles INNER JOIN employees WHERE roles.id=employees.role_id "
+//     )
+//     .then(([rows, fields]) => {
+//       console.table(rows);
+//       init();
+//     });
+// }
 
 function viewRoles() {
   db.promise()
@@ -47,22 +112,49 @@ function viewRoles() {
     });
 }
 
+function viewBudget() {
+  //get all the employee list
+  db.query("SELECT * FROM departments", (err, deptRes) => {
+    if (err) throw err;
+    const budgetChoice = [];
+    deptRes.forEach(({ id, name }) => {
+      budgetChoice.push({
+        name: name,
+        value: id,
+      });
+    });
+    let questions = [
+      {
+        type: "list",
+        name: "id",
+        choices: budgetChoice,
+        message: "which department budget would you like to view?",
+      },
+    ];
+
+    prompt(questions)
+      .then((response) => {
+        const query = `SELECT * FROM employees_db.employees e INNER JOIN (select  * from roles WHERE department_id = ?) r where e.role_id = r.id; `;
+        db.query(query, response.id, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          console.log(
+            `Budget:`,
+            res.reduce((acc, { salary }) => acc + parseInt(salary) || 0, 0)
+          );
+          init();
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
+}
+
 // View Employees
 function viewEmployees() {
   db.promise()
     .query("SELECT * FROM employees")
-    .then(([rows, fields]) => {
-      console.table(rows);
-      init();
-    });
-}
-
-// View Employees
-function viewBudget() {
-  db.promise()
-    .query(
-      "SELECT first_name, last_name,  title, salary  FROM roles INNER JOIN employees WHERE roles.id=employees.role_id "
-    )
     .then(([rows, fields]) => {
       console.table(rows);
       init();
@@ -408,10 +500,9 @@ function updateEmployeeRole() {
   });
 }
 
-//Update Manager Role
 function updateManagerRole() {
   //get all the employee list
-  db.query("SELECT * FROM employees WHERE id = 47", (err, emplRes) => {
+  db.query("SELECT * FROM employees", (err, emplRes) => {
     if (err) throw err;
     const employeeChoice = [];
     emplRes.forEach(({ first_name, last_name, id }) => {
@@ -443,7 +534,7 @@ function updateManagerRole() {
           type: "list",
           name: "role_id",
           choices: roleChoice,
-          message: "what is the employee's new role?",
+          message: "what is the Managers's new role?",
         },
       ];
 
