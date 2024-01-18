@@ -17,6 +17,9 @@
     <img src="https://img.shields.io/badge/mySQL-blue"  />
     <img src="https://img.shields.io/badge/inquirer-green" />
 </p>
+
+## UofM BootCamp: Application 12
+Employee Tracker
    
 ## Description
 
